@@ -18,5 +18,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Executer le programme
-        run: python app.py 
+      - name: Installer pytest
+        run: pip install pytest
+
+      - name: Lancer les tests
+        run: pytest  
