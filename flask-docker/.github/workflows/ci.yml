@@ -1,4 +1,4 @@
-name: Flask Docker CI
+name: Flask CI/CD Level 2
 
 on:
   push:
@@ -7,18 +7,43 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Récupérer le code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Installer Docker
+      # Python setup
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      # Lint check
+      - name: Run flake8
+        run: flake8 .
+
+      # Run tests
+      - name: Run tests
+        run: pytest -v
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 3. Build image Docker
       - name: Build Docker image
         run: docker build -t flask-app .
