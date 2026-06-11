@@ -1,43 +1,20 @@
-name: Flask CI/CD Level 2
+- name: Checkout code
+  uses: actions/checkout@v4
 
-on:
-  push:
-    branches: ["main"]
+- name: Setup Python
+  uses: actions/setup-python@v5
+  with:
+    python-version: "3.12"
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
+- name: Install dependencies
+  run: |
+    pip install -r flask-docker/requirements.txt
+    pip install pytest flake8
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+- name: Lint
+  working-directory: flask-docker
+  run: flake8 .
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Upgrade pip
-        run: pip install --upgrade pip
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install pytest flake8
-
-      - name: Run flake8 (lint)
-        run: flake8 .
-
-      - name: Run tests
-        run: python -m pytest -v
-
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Docker image
-        run: docker build -t flask-app .
+- name: Test
+  working-directory: flask-docker
+  run: python -m pytest -v
